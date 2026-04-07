@@ -74,12 +74,12 @@ INSERT INTO SAVED_LOCATION
 
 -- bảng ko có foreign
 INSERT INTO USER_NOTIFICATION
-(NOTIFICATION_ID,TITLE, CONTENT) VALUES 
-(1,'Deal sốc năm mới','Từ 1/1/2026 đến ngày 3/1/2026, giảm 30% cho cuốc đi xe ôtô.'),
-(2,'Khao trọn ngày cá tháng tư','Trong ngày 1/4/2026, giảm 15% nếu thanh toán bằng thẻ tín dụng OCB'),
-(3,'Ưu đãi từ BIDV','Từ hôm nay đến ngày 31/12/2026, BIDV có ưu đãi dành cho chủ thẻ BIDV, giảm 10.000 cho các cuốc >= 30.000, giảm 30.000 cho cuốc từ 90.000'),
-(4,'Liên kết ví Momo, trao deal liền tay!','Đến 1/6/2026, liên kết ví Momo để nhận ngay ưu đãi giảm 20% cho cuốc đi xe ôtô.'),
-(5,'Ưu đãi đặc biệt từ Vietcombank','Từ hôm nay đến ngày 1/5/2026, Vietcombank có ưu đãi dành cho chủ thẻ Vietcombank, giảm 15.000 cho các cuốc >= 45.000, giảm 50.000 cho cuốc từ 150.000');
+(NOTIFICATION_ID,TITLE, CONTENT,TIME) VALUES 
+(1,'Deal sốc năm mới','Từ 1/1/2026 đến ngày 3/1/2026, giảm 30% cho cuốc đi xe ôtô.','2026-01-01 09:30:00'),
+(2,'Khao trọn ngày cá tháng tư','Trong ngày 1/4/2026, giảm 15% nếu thanh toán bằng thẻ tín dụng OCB','2026-04-01 09:00:00'),
+(3,'Ưu đãi từ BIDV','Từ hôm nay đến ngày 31/12/2026, BIDV có ưu đãi dành cho chủ thẻ BIDV, giảm 10.000 cho các cuốc >= 30.000, giảm 30.000 cho cuốc từ 90.000','2026-02-02 09:30:00'),
+(4,'Liên kết ví Momo, trao deal liền tay!','Đến 1/6/2026, liên kết ví Momo để nhận ngay ưu đãi giảm 20% cho cuốc đi xe ôtô.','2026-02-13 09:30:00'),
+(5,'Ưu đãi đặc biệt từ Vietcombank','Từ hôm nay đến ngày 1/5/2026, Vietcombank có ưu đãi dành cho chủ thẻ Vietcombank, giảm 15.000 cho các cuốc >= 45.000, giảm 50.000 cho cuốc từ 150.000','2026-02-14 09:30:00');
 
 INSERT INTO VEHICLE
 (VEHICLE_ID,PLATE_NUMBER,MAKE,MODEL,COLOR,CAPACITY,REGISTRANT_ID,USING_DRIVER_ID) VALUES
