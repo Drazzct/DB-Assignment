@@ -1,3 +1,5 @@
+-- note: còn thiếu TRIP_DISCOUNT, ACCOUNT_NOTIFCATION
+
 INSERT INTO user_account
 (NAME, PHONE_NUMBER, EMAIL, ACCOUNT_PASSWORD, GENDER, AVATAR) VALUES
 ('Đặng Quí', '0474213546', 'dangqui@example.com', 'dangqui', 'Male', NULL),
