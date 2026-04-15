@@ -1,9 +1,7 @@
 USE GRAB;
-
 DELIMITER //
 
 -- constraint 9
-
 CREATE TRIGGER TRIP_STATUS_ORDER
 BEFORE UPDATE ON TRIP
 FOR EACH ROW
@@ -74,4 +72,70 @@ BEGIN
     WHERE TRIP_ID = T_ID;
     
 END//
-DELIMITER;
+
+-- Constraint 5: Exact Fare Payment Matching
+CREATE TRIGGER FARE_PAYMENT_MATCHING
+BEFORE INSERT ON PAYMENT_TRANSACTION
+FOR EACH ROW
+BEGIN
+    DECLARE v_final_price INT;
+
+    SELECT FINAL_PRICE INTO v_final_price
+    FROM TRIP
+    WHERE TRIP_ID = NEW.TRIP_ID;
+
+    IF NEW.PAYMENT_AMOUNT <> v_final_price THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = CONCAT('Semantic constraint violated: PAYMENT_AMOUNT must be equal to FINAL_PRICE of the trip. the trip id is ',NEW.TRIP_ID);
+    END IF;
+END//
+
+-- Constraint 6: Single Ongoing Trip per Driver
+CREATE TRIGGER DRIVER_ONGOING_CHECK
+BEFORE INSERT ON ASSIGNED_TRIP
+FOR EACH ROW
+BEGIN
+    DECLARE v_ongoing_count INT;
+
+    SELECT COUNT(*) INTO v_ongoing_count
+    FROM ASSIGNED_TRIP assign
+    JOIN TRIP trip ON assign.TRIP_ID = trip.TRIP_ID
+    WHERE assign.DRIVER_ID = NEW.DRIVER_ID
+        AND trip.STATUS = 'ONGOING';
+
+    IF v_ongoing_count >= 1 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = CONCAT(
+            'Semantic constraint violated: Driver ', NEW.DRIVER_ID,
+            ' already has an ongoing trip'
+        );
+    END IF;
+END//
+
+-- Constraint 7: Single Ongoing Trip per Passenger
+CREATE TRIGGER PASSENGER_ONGOING_CHECK
+BEFORE INSERT ON ASSIGNED_TRIP
+FOR EACH ROW
+BEGIN
+    DECLARE v_ongoing_count INT;
+    DECLARE v_passenger_id INT;
+
+    SELECT PASSENGER_ID INTO v_passenger_id
+    FROM TRIP
+    WHERE TRIP_ID = NEW.TRIP_ID;
+
+    SELECT COUNT(*) INTO v_ongoing_count
+    FROM ASSIGNED_TRIP at
+    JOIN TRIP t ON at.TRIP_ID = t.TRIP_ID
+    WHERE t.PASSENGER_ID = v_passenger_id
+      AND t.STATUS = 'ONGOING';
+
+    IF v_ongoing_count >= 1 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = CONCAT(
+            'Semantic constraint violated: Passenger ', v_passenger_id,
+            ' already in an ongoing trip'
+        );
+    END IF;
+END//
+DELIMITER ;

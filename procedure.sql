@@ -1,4 +1,4 @@
-DELIMITER $$
+DELIMITER //
 
 
 -- p_mode_ids_list: vehicle category for this vehicle. for exapmle: command-separated '1,2', respectively standard bike and saver bike
@@ -11,7 +11,7 @@ CREATE PROCEDURE INSERT_VEHICLE (
     IN p_capacity INT,
     IN p_registrant_id INT,
     IN p_using_driver_id INT,
-    IN p_mode_ids_list TEXT -- 
+    IN p_mode_ids_list TEXT --
 )
 BEGIN
     DECLARE v_vehicle_id INT;
@@ -26,11 +26,11 @@ BEGIN
 
     -- Insert into VEHICLE
     INSERT INTO VEHICLE (
-        PLATE_NUMBER, MAKE, MODEL, COLOR, 
+        PLATE_NUMBER, MAKE, MODEL, COLOR,
         CAPACITY, REGISTRANT_ID, USING_DRIVER_ID
     )
     VALUES (
-        p_plate_number, p_make, p_model, p_color, 
+        p_plate_number, p_make, p_model, p_color,
         p_capacity, p_registrant_id, p_using_driver_id
     );
 
@@ -38,7 +38,7 @@ BEGIN
     SET v_vehicle_id = LAST_INSERT_ID();
     WHILE CHAR_LENGTH(p_mode_ids_list) > 0 AND v_pos > 0 DO
         SET v_pos = LOCATE(',', p_mode_ids_list);
-        
+
         IF v_pos > 0 THEN
             SET v_mode_id_str = LEFT(p_mode_ids_list, v_pos - 1);
             SET p_mode_ids_list = SUBSTRING(p_mode_ids_list, v_pos + 1);
@@ -52,11 +52,11 @@ BEGIN
             VALUES (v_vehicle_id, CAST(v_mode_id_str AS UNSIGNED));
         END IF;
     END WHILE;
-END$$
+END //
 
 CREATE PROCEDURE UPDATE_ACTIVE_VEHICLE(
     IN p_registrant_id INT,
-    IN p_vehicle_id INT,
+    IN p_vehicle_id INT
 )
 BEGIN
     -- Nullify all vehicles of this registrant
@@ -69,7 +69,7 @@ BEGIN
     SET USING_DRIVER_ID = p_registrant_id
     WHERE VEHICLE_ID = p_vehicle_id
       AND REGISTRANT_ID = p_registrant_id;
-END$$
+END //
 
 CREATE PROCEDURE DELETE_VEHICLE(
     IN p_vehicle_id INT
@@ -77,6 +77,6 @@ CREATE PROCEDURE DELETE_VEHICLE(
 BEGIN
     DELETE FROM VEHICLE
     WHERE VEHICLE_ID = p_vehicle_id;
-END$$
+END //
 
 DELIMITER ;
