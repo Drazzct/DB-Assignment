@@ -65,7 +65,7 @@ BEGIN
     SET T_ID = NEW.TRIP_ID;
     SELECT FINAL_PRICE INTO trip_final_price FROM TRIP WHERE TRIP.TRIP_ID = T_ID;
 
-    SET trip_final_price = final_price DIV 2000;
+    SET trip_final_price = trip_final_price DIV 2000;
 
     UPDATE COMPLETED_TRIP
     SET OBTAINED_GRABCOIN = trip_final_price
@@ -79,14 +79,17 @@ BEFORE INSERT ON PAYMENT_TRANSACTION
 FOR EACH ROW
 BEGIN
     DECLARE v_final_price INT;
+    DECLARE error VARCHAR(1000);
 
     SELECT FINAL_PRICE INTO v_final_price
     FROM TRIP
     WHERE TRIP_ID = NEW.TRIP_ID;
 
+    SET error = CONCAT('Semantic constraint violated: PAYMENT_AMOUNT must equal FINAL_PRICE.', NEW.TRIP_ID);
     IF NEW.PAYMENT_AMOUNT <> v_final_price THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = CONCAT('Semantic constraint violated: PAYMENT_AMOUNT must be equal to FINAL_PRICE of the trip. the trip id is ',NEW.TRIP_ID);
+        SET MESSAGE_TEXT = error;
+        -- SET MESSAGE_TEXT = 'Semantic constraint violated: PAYMENT_AMOUNT must equal FINAL_PRICE.';
     END IF;
 END//
 
@@ -96,6 +99,7 @@ BEFORE INSERT ON ASSIGNED_TRIP
 FOR EACH ROW
 BEGIN
     DECLARE v_ongoing_count INT;
+    DECLARE error VARCHAR(1000);
 
     SELECT COUNT(*) INTO v_ongoing_count
     FROM ASSIGNED_TRIP assign
@@ -103,12 +107,10 @@ BEGIN
     WHERE assign.DRIVER_ID = NEW.DRIVER_ID
         AND trip.STATUS = 'ONGOING';
 
+    SET error = CONCAT('Semantic constraint violated: Driver ', NEW.DRIVER_ID,' already has an ongoing trip');
     IF v_ongoing_count >= 1 THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = CONCAT(
-            'Semantic constraint violated: Driver ', NEW.DRIVER_ID,
-            ' already has an ongoing trip'
-        );
+        SET MESSAGE_TEXT = error;
     END IF;
 END//
 
@@ -119,6 +121,7 @@ FOR EACH ROW
 BEGIN
     DECLARE v_ongoing_count INT;
     DECLARE v_passenger_id INT;
+    DECLARE error VARCHAR(1000);
 
     SELECT PASSENGER_ID INTO v_passenger_id
     FROM TRIP
@@ -130,12 +133,13 @@ BEGIN
     WHERE t.PASSENGER_ID = v_passenger_id
       AND t.STATUS = 'ONGOING';
 
+
+    SET error = CONCAT(
+    'Semantic constraint violated: Passenger ', v_passenger_id,
+    ' already in an ongoing trip');
     IF v_ongoing_count >= 1 THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = CONCAT(
-            'Semantic constraint violated: Passenger ', v_passenger_id,
-            ' already in an ongoing trip'
-        );
+        SET MESSAGE_TEXT = error;
     END IF;
 END//
 DELIMITER ;
