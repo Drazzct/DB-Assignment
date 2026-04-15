@@ -1,3 +1,4 @@
+-- Active: 1775061495821@@127.0.0.1@3306@grab
 USE GRAB;
 DELIMITER //
 
@@ -55,22 +56,27 @@ BEGIN
 END//
 
 
--- Sets the grab coin automatically
+-- Constraint 12: Grab coin check
 CREATE TRIGGER GRABCOIN_ACCUMULATION
-AFTER INSERT ON COMPLETED_TRIP
+BEFORE INSERT ON COMPLETED_TRIP
 FOR EACH ROW 
 BEGIN
     DECLARE trip_final_price INT;
+    DECLARE obtained_coins INT;
     DECLARE T_ID INT;
     SET T_ID = NEW.TRIP_ID;
     SELECT FINAL_PRICE INTO trip_final_price FROM TRIP WHERE TRIP.TRIP_ID = T_ID;
 
-    SET trip_final_price = trip_final_price DIV 2000;
+    SET obtained_coins = trip_final_price DIV 2000;
 
-    UPDATE COMPLETED_TRIP
-    SET OBTAINED_GRABCOIN = trip_final_price
-    WHERE TRIP_ID = T_ID;
-    
+    -- UPDATE COMPLETED_TRIP
+    -- SET OBTAINED_GRABCOIN = trip_final_price
+    -- WHERE TRIP_ID = T_ID;
+
+    IF NEW.OBTAINED_GRABCOIN <> obtained_coins THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Semantic constraint violated: Incorrect calculation for Obtained_Grabcoin';
+    END IF;
 END//
 
 -- Constraint 5: Exact Fare Payment Matching
