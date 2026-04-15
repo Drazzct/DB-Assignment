@@ -3,7 +3,7 @@ DELIMITER $$
 
 -- p_mode_ids_list: vehicle category for this vehicle. for exapmle: command-separated '1,2', respectively standard bike and saver bike
 -- p- prefix stands for 'parameter'
-CREATE PROCEDURE INSERT_VEHICLE_WITH_MODES (
+CREATE PROCEDURE INSERT_VEHICLE (
     IN p_plate_number VARCHAR(20),
     IN p_make VARCHAR(20),
     IN p_model VARCHAR(20),
@@ -21,7 +21,7 @@ BEGIN
     -- PLATE NUMBER validation
     IF p_plate_number NOT REGEXP '^[0-9]{2}[A-Z]{1,3}-[0-9]{3}\\.[0-9]{2}$' THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Invalid plate number format';
+        SET MESSAGE_TEXT = 'Invalid plate number. The format must be: [2 digits][1 to 3 capital letters][-][3 digits][.][2 digits]';
     END IF;
 
     -- Insert into VEHICLE
@@ -52,7 +52,31 @@ BEGIN
             VALUES (v_vehicle_id, CAST(v_mode_id_str AS UNSIGNED));
         END IF;
     END WHILE;
+END$$
 
+CREATE PROCEDURE UPDATE_ACTIVE_VEHICLE(
+    IN p_registrant_id INT,
+    IN p_vehicle_id INT,
+)
+BEGIN
+    -- Nullify all vehicles of this registrant
+    UPDATE VEHICLE
+    SET USING_DRIVER_ID = NULL
+    WHERE REGISTRANT_ID = p_registrant_id;
+
+    -- Set the chosen vehicle
+    UPDATE VEHICLE
+    SET USING_DRIVER_ID = p_registrant_id
+    WHERE VEHICLE_ID = p_vehicle_id
+      AND REGISTRANT_ID = p_registrant_id;
+END$$
+
+CREATE PROCEDURE DELETE_VEHICLE(
+    IN p_vehicle_id INT
+)
+BEGIN
+    DELETE FROM VEHICLE
+    WHERE VEHICLE_ID = p_vehicle_id;
 END$$
 
 DELIMITER ;
