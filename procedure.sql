@@ -11,7 +11,8 @@ CREATE PROCEDURE INSERT_VEHICLE (
     IN p_capacity INT,
     IN p_registrant_id INT,
     IN p_using_driver_id INT,
-    IN p_mode_ids_list TEXT --
+    IN p_mode_ids_list TEXT,
+    OUT p_vehicle_id INT
 )
 BEGIN
     DECLARE v_vehicle_id INT;
