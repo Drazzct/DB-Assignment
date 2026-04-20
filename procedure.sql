@@ -11,7 +11,8 @@ CREATE PROCEDURE INSERT_VEHICLE (
     IN p_capacity INT,
     IN p_registrant_id INT,
     IN p_using_driver_id INT,
-    IN p_mode_ids_list TEXT --
+    IN p_mode_ids_list TEXT,
+    OUT p_vehicle_id INT
 )
 BEGIN
     DECLARE v_vehicle_id INT;
@@ -36,6 +37,8 @@ BEGIN
 
     -- Insert into VEHICLE_CATEGORIZATION
     SET v_vehicle_id = LAST_INSERT_ID();
+    SET p_vehicle_id = v_vehicle_id;
+
     WHILE CHAR_LENGTH(p_mode_ids_list) > 0 AND v_pos > 0 DO
         SET v_pos = LOCATE(',', p_mode_ids_list);
 
@@ -116,7 +119,7 @@ BEGIN
         CASE WHEN p_sort_option = 'CAPACITY_ASC' THEN V.CAPACITY END ASC,
         CASE WHEN p_sort_option = 'MAKE' THEN V.MAKE END ASC,
         V.VEHICLE_ID ASC;
-END$$
+END //
 
 DELIMITER ;
 
