@@ -254,7 +254,7 @@ CREATE TABLE IF NOT EXISTS DISCOUNT (
                 DISCOUNT_TYPE = 'Percentage'
                 AND (
                     PERCENTAGE_DISCOUNT IS NOT NULL
-                    AND PERCENTAGE_DISCOUNT >= 0
+                    AND PERCENTAGE_DISCOUNT BETWEEN 0.0 AND 1.0
                 )
                 AND AMOUNT_DISCOUNT IS NULL
             )
